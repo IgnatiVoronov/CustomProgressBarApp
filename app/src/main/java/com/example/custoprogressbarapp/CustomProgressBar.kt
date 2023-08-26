@@ -96,7 +96,6 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
             progress = DEFAULT_PROGRESS
         }
 
-        Log.d("TAG", "$progress")
         //Set the paint color to the progressBorderColor and make it
         //just draw a border around the drawing area by setting the style to STROKE
         paint.color = progressBorderColor
