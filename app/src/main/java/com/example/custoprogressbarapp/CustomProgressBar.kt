@@ -1,5 +1,6 @@
 package com.example.custoprogressbarapp
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -7,6 +8,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import kotlin.math.abs
+import kotlin.properties.Delegates
 
 class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
     companion object {
@@ -29,6 +32,9 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
     private var width = 0
     private var height = 0
 
+    private var valueAnimator = ValueAnimator()
+    var progressAnimationStartPoint = 0
+
     //Add a new property called progress for the progress state.
     var progress = DEFAULT_PROGRESS
         set(state) {
@@ -36,13 +42,13 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
             //The invalidate() method makes Android redraw the view by calling onDraw()
             invalidate()
         }
-
-    var progressColor = DEFAULT_PROGRESS_COLOR
+    private var progressColor = DEFAULT_PROGRESS_COLOR
         set(state) {
             field = state
             //The invalidate() method makes Android redraw the view by calling onDraw()
             invalidate()
         }
+
     //Call a new private setupAttributes() method from the init block
     init {
         paint.isAntiAlias = true
@@ -69,7 +75,10 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
         )
         progressColor =
             typedArray.getColor(R.styleable.CustomProgressBar_progressColor, DEFAULT_PROGRESS_COLOR)
-        progressBorderWidth = typedArray.getDimension(R.styleable.CustomProgressBar_progressBorderWidth, DEFAULT_PROGRESS_BORDER_WIDTH)
+        progressBorderWidth = typedArray.getDimension(
+            R.styleable.CustomProgressBar_progressBorderWidth,
+            DEFAULT_PROGRESS_BORDER_WIDTH
+        )
 
         // TypedArray objects are shared and must be recycled.
         typedArray.recycle()
@@ -92,9 +101,7 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
     }
 
     private fun drawProgressBarLevel(canvas: Canvas) {
-        if(progress<0 || progress>100){
-            progress = DEFAULT_PROGRESS
-        }
+        progressVerification()
 
         //Set the paint color to the progressBorderColor and make it
         //just draw a border around the drawing area by setting the style to STROKE
@@ -114,7 +121,9 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
         //Change the paint color to the progressColor and make it fill the drawing area
         paint.color = progressColor
         paint.style = Paint.Style.FILL
-        val progressLevel = (height - width * 0.10f) - (height - width * 0.20f) * (progress / 100f)
+        val progressLevel =
+            (height - width * 0.10f) - (height - width * 0.20f) * (progress / 100f)
+
 
         //Draw the background. All dimensions are measured from the top left edge
         canvas.drawRect(
@@ -124,5 +133,31 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
             height - width * 0.10f,
             paint
         )
+    }
+
+    private fun progressVerification(){
+        if (progress < 0 || progress > 100) {
+            progress = DEFAULT_PROGRESS
+            progressAnimationStartPoint = 0
+        }
+    }
+
+    fun progressAnimation() {
+        progressVerification()
+
+        valueAnimator = ValueAnimator.ofInt(progressAnimationStartPoint, progress)
+        valueAnimator.addUpdateListener {
+            val n = it.animatedValue as Int
+            val R = (255 * n) / 100
+            val G = (255 * (100 - n)) / 100
+            val B = 0
+            progressColor = Color.rgb(R, G, B)
+            progress = n
+            progressAnimationStartPoint = progress
+        }
+        val duration: Double =
+            2_000 * (abs(progress - progressAnimationStartPoint) / 100.toDouble())
+        valueAnimator.duration = duration.toLong()
+        valueAnimator.start()
     }
 }
