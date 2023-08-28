@@ -18,14 +18,14 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.setPercentButton.setOnClickListener {
-            if (binding.percentOfProgressEditText.text.toString() == "") {
-                binding.customProgressBar.progress = 0
-                binding.customProgressBar.progressAnimationStartPoint = 0
-            } else {
+            try {
                 binding.customProgressBar.progress =
                     Integer.parseInt(binding.percentOfProgressEditText.text.toString())
-                binding.customProgressBar.progressAnimation()
+            } catch (_: NumberFormatException) {
+                binding.customProgressBar.progress = 0
             }
+            binding.customProgressBar.progressAnimation()
+
         }
     }
 }

@@ -6,10 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import kotlin.math.abs
-import kotlin.properties.Delegates
 
 class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, attrs) {
     companion object {
@@ -33,7 +31,7 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
     private var height = 0
 
     private var valueAnimator = ValueAnimator()
-    var progressAnimationStartPoint = 0
+    private var progressAnimationStartPoint = 0
 
     //Add a new property called progress for the progress state.
     var progress = DEFAULT_PROGRESS
@@ -135,7 +133,7 @@ class CustomProgressBar(context: Context, attrs: AttributeSet) : View(context, a
         )
     }
 
-    private fun progressVerification(){
+    private fun progressVerification() {
         if (progress < 0 || progress > 100) {
             progress = DEFAULT_PROGRESS
             progressAnimationStartPoint = 0
